@@ -1,3 +1,8 @@
 [workspace]
 members = ["frontend", "backend", "common"]
 resolver = "2"
+
+
+[workspace.dependencies]
+serde = { version = "1.0.193", features = ["derive"] }
+serde_json = "1.0.108"

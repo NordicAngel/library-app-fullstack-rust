@@ -1,0 +1,28 @@
+-- Add migration script here
+
+CREATE TABLE IF NOT EXISTS `Authors`(
+    `AuthorID` INT AUTO_INCREMENT PRIMARY KEY,
+    `Name` VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `Books`(
+    `ISBN` VARCHAR(13) PRIMARY KEY,
+    `Title` VARCHAR(255) NOT NULL,
+    `AuthorID` INT NOT NULL,
+    `Image` BLOB NULL,
+    `Description` TEXT NULL,
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
+);
+
+CREATE TABLE IF NOT EXISTS `Book_Series`(
+    `SeriesID` INT AUTO_INCREMENT PRIMARY KEY,
+    `Name` VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `Books_In_Series`(
+    `SeriesID` INT NOT NULL,
+    `ISBN` VARCHAR(13) NOT NULL,
+    PRIMARY KEY (SeriesID, ISBN),
+    FOREIGN KEY (SeriesID) REFERENCES Book_Series,
+    FOREIGN KEY (ISBN) REFERENCES Books
+);

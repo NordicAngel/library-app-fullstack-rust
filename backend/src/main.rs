@@ -1,9 +1,7 @@
 use actix_files::NamedFile;
-use actix_web::App;
-use actix_web::HttpServer;
-use actix_web::{get, HttpRequest, Result};
-use std::path::Path;
-use std::path::PathBuf;
+use actix_web::{get, App, HttpRequest, HttpServer, Result};
+use std::path::{Path, PathBuf};
+mod crud_api;
 
 #[get("/app/{filename:.*}")]
 async fn app(req: HttpRequest) -> Result<NamedFile> {

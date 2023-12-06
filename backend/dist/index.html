@@ -1,10 +1,25 @@
 <!DOCTYPE html><html><head>
-        <meta charset="utf-8">
-        <title>Yew App</title>
-    
+  <meta charset="utf-8">
+  <title>Yew App</title>
+<style>
+  .popup {
+    position: absolute;
+    border: 3px solid #f1f1f1;
+    z-index: 9;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .inner {
+    height: 500px;
+  }
+</style>
 <link rel="preload" href="/app/frontend_bg.wasm" as="fetch" type="application/wasm" crossorigin="">
 <link rel="modulepreload" href="/app/frontend.js"></head>
-    <body>
+
+
+<body>
 
 <script type="module">import init from '/app/frontend.js';init('/app/frontend_bg.wasm');</script><script>(function () {
     var protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
