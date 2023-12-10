@@ -69,13 +69,36 @@ macro_rules! api_read {
             Err(_) => HttpResponse::InternalServerError().into(),
         }
     }};
+    ($type:ty,$query:expr) => {{
+        let err_msg: HttpResponse = HttpResponse::InternalServerError().into();
+        let conn = connect().await;
+        if let Err(_) = conn {
+            return err_msg;
+        }
+        let query = sqlx::query_as!($type, $query)
+            .fetch_all(&conn.unwrap())
+            .await;
+        if let Err(_) = query {
+            return err_msg;
+        }
+        let json = serde_json::to_string(&query.unwrap());
+        match json {
+            Ok(json) => HttpResponse::Ok().body(json),
+            Err(_) => HttpResponse::InternalServerError().into(),
+        }
+    }};
+}
+
+#[get("/api/author")]
+async fn all_authors() -> HttpResponse {
+    api_read!(Author, "SELECT Name as name, AuthorId as id FROM Authors;")
 }
 
 #[get("api/author/name/{name}")]
 async fn author_by_name(info: web::Path<String>) -> HttpResponse {
     api_read!(
         Author,
-        "SELECT Name as name, AuthorID as id FROM Authors WHERE NAME LIKE ? LIMIT 10",
+        "SELECT Name as name, AuthorID as id FROM Authors WHERE NAME = ?",
         info
     )
 }

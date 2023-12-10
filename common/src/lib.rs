@@ -1,6 +1,6 @@
 use serde::*;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Book {
     pub isbn: String,
     pub title: String,
@@ -9,7 +9,7 @@ pub struct Book {
     pub description: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow, Default)]
 pub struct Author {
     #[sqlx(rename = "AuthorID")]
     pub id: i64,

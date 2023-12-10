@@ -2,8 +2,33 @@
   <meta charset="utf-8">
   <title>Yew App</title>
 <style>
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+  }
+
+  li {
+    float: left;
+  }
+
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+
+  li a:hover {
+    background-color: #111;
+  }
+
   .popup {
     position: absolute;
+    padding: 15px;
     border: 3px solid #f1f1f1;
     z-index: 9;
     top: 50%;

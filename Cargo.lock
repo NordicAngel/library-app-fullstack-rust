@@ -738,8 +738,13 @@ name = "frontend"
 version = "0.1.0"
 dependencies = [
  "common",
+ "input_yew",
+ "regex",
  "reqwest",
+ "serde",
+ "serde_json",
  "wasm-bindgen-futures",
+ "web-sys",
  "yew",
 ]
 
@@ -1419,6 +1424,16 @@ checksum = "d530e1a18b1cb4c484e6e34556a0d948706958449fca0cab753d649f2bce3d1f"
 dependencies = [
  "equivalent",
  "hashbrown",
+]
+
+[[package]]
+name = "input_yew"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3d515cef50bd006767c419ede136f64bf500993b96f8d9aebb30a1b72f7c401"
+dependencies = [
+ "web-sys",
+ "yew",
 ]
 
 [[package]]

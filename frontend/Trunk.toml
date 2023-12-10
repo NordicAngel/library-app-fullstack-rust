@@ -2,3 +2,6 @@
 public_url = "/app/"
 filehash = false
 dist = "../backend/dist"
+
+[serve]
+port = 8000

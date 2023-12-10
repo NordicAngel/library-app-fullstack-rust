@@ -1,5 +1,6 @@
 use actix_files::NamedFile;
 use actix_web::{get, App, HttpRequest, HttpServer, Result};
+use crud_api::*;
 use std::path::{Path, PathBuf};
 mod crud_api;
 
@@ -17,8 +18,15 @@ async fn app(req: HttpRequest) -> Result<NamedFile> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(app))
-        .bind(("127.0.0.1", 8081))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(app)
+            .service(all_authors)
+            .service(add_author)
+            .service(add_book)
+            .service(author_by_name)
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
