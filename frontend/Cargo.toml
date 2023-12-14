@@ -9,10 +9,11 @@ edition = "2021"
 yew = { version = "0.21.0", features = ["csr"] }
 # stylist = { version = "0.13.0", features = ["yew_integration"]}
 common = { version = "0.1.0", path = "../common" }
-reqwest = "0.11.22"
+# reqwest = "0.11.22"
 wasm-bindgen-futures = "0.4.39"
 web-sys = {version = "0.3.66", features = ["DomStringMap"]}
 input_yew = "0.1.8"
 regex = "1.10.2"
 serde.workspace = true
 serde_json.workspace = true
+gloo-net = { version = "0.5.0", features = ["http"] }

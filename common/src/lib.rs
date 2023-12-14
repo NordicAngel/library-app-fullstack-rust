@@ -1,11 +1,11 @@
 use serde::*;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Book {
     pub isbn: String,
     pub title: String,
     pub author_id: i64,
-    pub image: Option<String>,
+    pub image: Option<Vec<u8>>,
     pub description: Option<String>,
 }
 

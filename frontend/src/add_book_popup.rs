@@ -1,7 +1,7 @@
 use common::{Author, Book};
+use gloo_net::http::Request;
 use input_yew::CustomInput;
 use regex::Regex;
-use reqwest::Client;
 use serde_json;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::{HtmlInputElement, SubmitEvent};
@@ -11,34 +11,33 @@ use yew::{function_component, html, use_node_ref, use_state, Callback, Html, Pro
 pub struct Props {
     pub on_finished_form: Callback<bool>,
 }
-async fn add_book(client: &Client, book: &Book) {
-    client
-        .post("http://127.0.0.1:8080/api/book")
+async fn add_book(book: &Book) {
+    Request::post("http://127.0.0.1:8080/api/book")
         .body(serde_json::to_string(book).unwrap())
+        .unwrap()
         .send()
         .await
         .unwrap();
 }
 
-async fn add_book_and_author(client: &Client, book: &Book, author_name: &str) {
-    client
-        .post("http://127.0.0.1:8080/api/author")
+async fn add_book_and_author(book: &Book, author_name: &str) {
+    Request::post("http://127.0.0.1:8080/api/author")
         .body(author_name.to_owned())
+        .unwrap()
         .send()
         .await
         .unwrap();
     let author = serde_json::from_str::<Author>(
-        &client
-            .get(format!(
-                "http://127.0.0.1:8080/api/author/name/{}",
-                author_name
-            ))
-            .send()
-            .await
-            .unwrap()
-            .text()
-            .await
-            .unwrap(),
+        &Request::get(&format!(
+            "http://127.0.0.1:8080/api/author/name/{}",
+            author_name
+        ))
+        .send()
+        .await
+        .unwrap()
+        .text()
+        .await
+        .unwrap(),
     )
     .unwrap();
     let book = Book {
@@ -48,9 +47,9 @@ async fn add_book_and_author(client: &Client, book: &Book, author_name: &str) {
         image: book.image.to_owned(),
         description: book.description.to_owned(),
     };
-    client
-        .post("127.0.0.1:8080/api/book")
+    Request::post("127.0.0.1:8080/api/book")
         .body(serde_json::to_string(&book).unwrap())
+        .unwrap()
         .send()
         .await
         .unwrap();
@@ -70,21 +69,16 @@ pub(crate) fn Popup(props: &Props) -> Html {
     let list_ref = use_node_ref();
     let authors_vec: yew::UseStateHandle<Option<Vec<Author>>> = use_state(|| None);
     let authors_html = use_state(|| html! {});
-    let reqwest_client = use_state(|| Client::new());
 
     let onsubmit = {
         let list_ref = list_ref.clone();
         let isbn_handle = isbn_handle.clone();
         let title_handle = title_handle.clone();
-        let reqwest_client = reqwest_client.clone();
         let authors_vec = authors_vec.clone();
         Callback::from(move |event: SubmitEvent| {
-            // let props = props.clone();
             event.prevent_default();
             let isbn_handle = isbn_handle.clone();
             let title_handle = title_handle.clone();
-            let reqwest_client = reqwest_client.clone();
-            // let props = props.clone();
             if let Some(input) = list_ref.cast::<HtmlInputElement>() {
                 let author_string = input.value();
                 let authors_vec = (*authors_vec).clone().unwrap_or(Vec::new());
@@ -104,7 +98,7 @@ pub(crate) fn Popup(props: &Props) -> Html {
                                 image: None,
                                 description: None,
                             };
-                            add_book(&*reqwest_client, &book).await
+                            add_book(&book).await
                         });
                         on_finished_form.emit(false);
                     },
@@ -117,7 +111,7 @@ pub(crate) fn Popup(props: &Props) -> Html {
                                 image: None,
                                 description: None,
                             };
-                            add_book_and_author(&*reqwest_client, &book, &author_string).await
+                            add_book_and_author(&book, &author_string).await
                         });
                         on_finished_form.emit(false);
                     },
@@ -129,9 +123,7 @@ pub(crate) fn Popup(props: &Props) -> Html {
     {
         let authors_html = authors_html.clone();
         spawn_local(async move {
-            let request = reqwest_client
-                .get("http:/127.0.0.1:8080/api/author")
-                .fetch_mode_no_cors()
+            let request = Request::get("http://127.0.0.1:8080/api/author")
                 .send()
                 .await
                 .expect("fetch fail")

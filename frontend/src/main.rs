@@ -1,10 +1,13 @@
 #![feature(result_option_inspect)]
 use yew::prelude::*;
+
+use crate::search_book::SearchBook;
 mod add_book_popup;
+mod search_book;
 
 #[function_component]
 fn App() -> Html {
-    let show_add_book = use_state(|| true);
+    let show_add_book = use_state(|| false);
     let onclick = {
         let show_add_book = show_add_book.clone();
         Callback::from(move |_| {
@@ -28,6 +31,7 @@ fn App() -> Html {
             </ul>
 
             <div class="inner">
+            <SearchBook/>
             if *show_add_book {
                 <add_book_popup::Popup {on_finished_form}/>
             }

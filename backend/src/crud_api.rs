@@ -51,14 +51,14 @@ pub(crate) async fn add_author(req_body: String) -> HttpResponse {
     }
 }
 
-macro_rules! api_read {
-    ($type:ty,$query:expr,$info:expr) => {{
+macro_rules! api_read_all {
+    ($type:ty,$query:expr,$($info:expr),*) => {{
         let err_msg: HttpResponse = HttpResponse::InternalServerError().into();
         let conn = connect().await;
         if let Err(_) = conn {
             return err_msg;
         }
-        let query = sqlx::query_as!($type, $query, $info.into_inner())
+        let query = sqlx::query_as!($type, $query, $($info),*)
             .fetch_all(&conn.unwrap())
             .await;
         if let Err(_) = query {
@@ -69,20 +69,21 @@ macro_rules! api_read {
             Err(_) => HttpResponse::InternalServerError().into(),
         }
     }};
-    ($type:ty,$query:expr) => {{
+}
+macro_rules! api_read_first {
+    ($type:ty,$query:expr,$($info:expr),*) => {{
         let err_msg: HttpResponse = HttpResponse::InternalServerError().into();
         let conn = connect().await;
         if let Err(_) = conn {
             return err_msg;
         }
-        let query = sqlx::query_as!($type, $query)
-            .fetch_all(&conn.unwrap())
+        let query = sqlx::query_as!($type, $query, $($info),*)
+            .fetch_one(&conn.unwrap())
             .await;
         if let Err(_) = query {
             return err_msg;
         }
-        let json = serde_json::to_string(&query.unwrap());
-        match json {
+        match serde_json::to_string(&query.unwrap()) {
             Ok(json) => HttpResponse::Ok().body(json),
             Err(_) => HttpResponse::InternalServerError().into(),
         }
@@ -91,14 +92,43 @@ macro_rules! api_read {
 
 #[get("/api/author")]
 async fn all_authors() -> HttpResponse {
-    api_read!(Author, "SELECT Name as name, AuthorId as id FROM Authors;")
+    api_read_all!(Author, "SELECT Name as name, AuthorId as id FROM Authors;",)
 }
 
 #[get("api/author/name/{name}")]
 async fn author_by_name(info: web::Path<String>) -> HttpResponse {
-    api_read!(
+    api_read_all!(
         Author,
         "SELECT Name as name, AuthorID as id FROM Authors WHERE NAME = ?",
-        info
+        info.into_inner()
+    )
+}
+
+#[get("api/author/id/{id}")]
+async fn author_by_id(info: web::Path<String>) -> HttpResponse {
+    api_read_first!(
+        Author,
+        "SELECT Name as name, AuthorID as id FROM Authors WHERE AuthorID = ?",
+        info.into_inner()
+    )
+}
+
+#[get("/api/book/search/{term}")]
+async fn search_book(info: web::Path<String>) -> HttpResponse {
+    api_read_all!(
+        Book,
+        "SELECT ISBN as isbn, \
+         Title as title, \
+         AuthorId as author_id, \
+        Image as image, \
+        Description as description \
+        FROM Books \
+        WHERE isbn = ? OR \
+        title like ? OR \
+        AuthorId IN \
+        (SELECT AuthorId FROM Authors WHERE Name LIKE ?)",
+        format!("{}", info),
+        format!("%{}%", info),
+        format!("%{}%", info)
     )
 }
