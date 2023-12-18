@@ -1,4 +1,4 @@
-use actix_web::{get, post, web, HttpResponse, Result};
+use actix_web::{delete, get, post, put, web, HttpResponse, Result};
 use common::{Author, Book};
 use sqlx::{Error, MySql, MySqlPool, Pool};
 
@@ -47,6 +47,39 @@ pub(crate) async fn add_author(req_body: String) -> HttpResponse {
             .await?
     ) {
         Ok(_) => HttpResponse::Created().into(),
+        Err(_) => HttpResponse::InternalServerError().into(),
+    }
+}
+
+#[put("/api/book/{isbn}")]
+pub(crate) async fn update_book(info: web::Path<String>, req_body: String) -> HttpResponse {
+    match catch_result!({
+        let book: Book = serde_json::from_str::<Book>(&req_body)?;
+        sqlx::query!(
+            "UPDATE Books SET ISBN = ?, Title = ?, AuthorID = ?, Image = ?, Description = ? WHERE ISBN = ?",
+            book.isbn,
+            book.title,
+            book.author_id,
+            book.image,
+            book.description,
+            info.into_inner()
+        )
+        .execute(&connect().await?)
+        .await?;
+    }) {
+        Ok(_) => HttpResponse::Ok().into(),
+        Err(_) => HttpResponse::InternalServerError().into(),
+    }
+}
+
+#[delete("/api/book/{isbn}")]
+pub(crate) async fn delete_book(info: web::Path<String>) -> HttpResponse {
+    match catch_result!(
+        sqlx::query!("DELETE FROM Books WHERE ISBN = ?", info.into_inner())
+            .execute(&connect().await?)
+            .await?
+    ) {
+        Ok(_) => HttpResponse::Ok().into(),
         Err(_) => HttpResponse::InternalServerError().into(),
     }
 }

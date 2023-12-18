@@ -27,6 +27,8 @@ async fn main() -> std::io::Result<()> {
             .service(author_by_name)
             .service(search_book)
             .service(author_by_id)
+            .service(delete_book)
+            .service(update_book)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

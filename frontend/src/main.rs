@@ -16,7 +16,7 @@ fn App() -> Html {
         })
     };
 
-    let on_finished_form = {
+    let close_form = {
         let show_add_book = show_add_book.clone();
         Callback::from(move |bool| {
             show_add_book.set(bool);
@@ -33,7 +33,7 @@ fn App() -> Html {
             <div class="inner">
             <SearchBook/>
             if *show_add_book {
-                <add_book_popup::Popup {on_finished_form}/>
+                <add_book_popup::Popup {close_form}/>
             }
         // <FeedbackForm/>
             </div>

@@ -9,7 +9,7 @@ use yew::{function_component, html, use_node_ref, use_state, Callback, Html, Pro
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
-    pub on_finished_form: Callback<bool>,
+    pub close_form: Callback<bool>,
 }
 async fn add_book(book: &Book) {
     Request::post("http://127.0.0.1:8080/api/book")
@@ -57,7 +57,7 @@ async fn add_book_and_author(book: &Book, author_name: &str) {
 
 #[function_component]
 pub(crate) fn Popup(props: &Props) -> Html {
-    let on_finished_form = props.on_finished_form.clone();
+    let on_finished_form = props.close_form.clone();
     let isbn_ref = use_node_ref();
     let isbn_handle = use_state(String::default);
     let val_isbn_handle = use_state(|| true);
